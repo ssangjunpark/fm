@@ -176,14 +176,9 @@ def test():
 
     max_steps = 300
     env = pusht.PushTImageEnv()
-    scorealllist = []
-    stepalllist = []
-    scorebestlist = []
 
-    for epoch in range(1258, 1259):
-        scorethislist = []
-        stepthislist = []
-
+    ###### please choose the seed you want to test
+    for epoch in range(1000, 1500):
         for pp in range(1):
             env.seed(epoch)
 
