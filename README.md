@@ -6,10 +6,9 @@
 <!--[![License](https://img.shields.io/pypi/l/cobras?style=flat-square)](https://opensource.org/license/bsd-3-clause)-->
 <!--[![Code Style](https://img.shields.io/badge/code_style-black-black?style=flat-square)](https://github.com/psf/black)-->
 
-A reference implementation for the `robot manipulation with flow matching`. The flow matching also leads to marginally better 
-generalization performance, prominently faster inference than diffusion policy with DDPM.
+A reference implementation for the `Affordance-based Robot Manipulation with Flow Matching`.
 
-* Paper page: Affordance-based Robot Manipulation with Flow Matching https://arxiv.org/abs/2409.01083
+* Paper page: Affordance-based Robot Manipulation with Flow Matching. https://arxiv.org/abs/2409.01083
 * Project page: https://hri-eu.github.io/flow-matching-policy/
 * Code: https://github.com/HRI-EU/flow_matching
 * Author: Fan Zhang (fan.zhang@honda-ri.de), Michael Gienger
@@ -44,7 +43,7 @@ Training and evaluation examples of using flow matching on PushT and Franka Kitc
 📝 **Acknowledgements** 
 * The model structure implementation is modified from Cheng Chi's [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. The code is under external/diffusion_policy (MIT license). Some code that we modified is located under external/models.
 * We use some functions from Alexander Tong's [TorchCFM](https://github.com/atong01/conditional-flow-matching) repo (MIT license). It is installed through pip.
-* Please download the PushT demonstration datat from Google Drive (id=1KY1InLurpMvJDRb14L9NlXT_fEsCvVUq&confirm=t) based on from Cheng Chi's 
+* Please download the PushT demonstration datat from Google Drive (id=1KY1InLurpMvJDRb14L9NlXT_fEsCvVUq&confirm=t) from Cheng Chi's 
 [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. 
 * Please download the Franka Kitchen demonstration data from Nur Muhammad Shafiullah's 
 [Behavior Transformers](https://mahis.life/bet/) repo (MIT license).
