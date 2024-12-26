@@ -174,14 +174,14 @@ noise_pred_net.load_state_dict(state_dict['noise_pred_net'])
 
 max_steps = 280
 env = KitchenAllV0(use_abs_action=False)
-scorealllist = []
-scorebestlist = []
 
-all_init_qpos = np.load('/home/hri/z_flow/kitchen/data/all_init_qpos.npy')
-all_init_qvel = np.load('/home/hri/z_flow/kitchen/data/all_init_qvel.npy')
+test_start_seed = 10000
+n_test = 500
 
-for epoch in range(0, 500):
-    scorethislist = []
+###### please choose the seed you want to test
+for epoch in range(n_test):
+    seed = test_start_seed + epoch
+    env.seed(seed)
 
     for pp in range(10):
         obs = env.reset()

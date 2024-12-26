@@ -51,7 +51,7 @@ from torchcfm.utils import *
 from torchcfm.models.models import *
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+# dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
 ##################################
 ########## download the pusht data and put in the folder
@@ -177,11 +177,15 @@ def test():
     max_steps = 300
     env = pusht.PushTImageEnv()
 
-    ###### please choose the seed you want to test
-    for epoch in range(1000, 1500):
-        for pp in range(1):
-            env.seed(epoch)
+    test_start_seed = 10000
+    n_test = 500
 
+    ###### please choose the seed you want to test
+    for epoch in range(n_test):
+        seed = test_start_seed + epoch
+        env.seed(seed)
+
+        for pp in range(10):
             obs, info = env.reset()
             obs_deque = collections.deque(
                 [obs] * obs_horizon, maxlen=obs_horizon)
@@ -264,9 +268,9 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("No argument provided. Please specify 'train', 'test', or 'print'.")
         sys.exit(1)
-    
+
     arg = sys.argv[1].lower()
-    
+
     if arg == 'train':
         train()
     elif arg == 'test':
