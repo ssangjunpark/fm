@@ -47,9 +47,9 @@ Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | Flow Matching | 0.9035/0.7519 | 0.7363/0.6218 | 0.9960/0.7172 |  | 
 
-sampling range<sup>1</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(200, 300), rs.randint(200, 300), rs.randn() * 2 * np.pi - np.pi*]
+sampling range<sup>1</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(200, 300), rs.randint(200, 300), rs.randn() * 2 * np.pi - np.pi]
 
-sampling range<sup>2</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(100, 400), rs.randint(100, 400), rs.randn() * 2 * np.pi - np.pi*]
+sampling range<sup>2</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(100, 400), rs.randint(100, 400), rs.randn() * 2 * np.pi - np.pi]
 
 📝 **Acknowledgements** 
 * The model structure implementation is modified from Cheng Chi's [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. The code is under external/diffusion_policy (MIT license). Some code that we modified is located under external/models.
