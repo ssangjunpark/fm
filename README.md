@@ -40,7 +40,7 @@ Training and evaluation examples of using flow matching on PushT and Franka Kitc
   * `AutoTulipAgent`: Fully autonomous variant; can use the search tool at any time and modify its tool library with CRUD operations
   * `DfsTulipAgent`: DFS inspired variant that leverages a DAG for keeping track of tasks and suitable tools, can create new tools-->
   
-🏆 **Some Results** 
+🏆 **Some Results** \
 Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/1czhtJyD3ny8op-P626Ucqhqur8SIaZZs/view?usp=sharing), [Franka Kitchen](https://drive.google.com/file/d/1oZioEezMlN-7Psu2UQBvLx_YztR7YkG8/view?usp=sharing)
 
 📝 **Acknowledgements** 
