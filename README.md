@@ -46,7 +46,8 @@ Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/
 | Methods | Push-T<sup>1</sup> | Push-T<sup>2</sup> | Franka Kitchen | RLBench | 
 | ------------- | ------------- | ------------- | ------------- | ------------- |
 | Flow Matching | 0.9035/0.7519 | 0.7363/0.6218 | 0.9960/0.7172 |  | 
-
+1.
+2.
 
 📝 **Acknowledgements** 
 * The model structure implementation is modified from Cheng Chi's [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. The code is under external/diffusion_policy (MIT license). Some code that we modified is located under external/models.
