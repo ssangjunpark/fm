@@ -153,11 +153,6 @@ def train():
         print(colored(f"epoch: {epoch:>02},  loss_train: {avg_loss_train:.10f}", 'yellow'))
 
         if epoch == 3000:
-            PATH = './checkpoint_t/flow_%05d.pth' % epoch
-            torch.save({'vision_encoder': nets.vision_encoder.state_dict(),
-                        'noise_pred_net': nets.noise_pred_net.state_dict(),
-                        }, PATH)
-
             ema.copy_to(nets.parameters())
             PATH = './checkpoint_t/flow_ema_%05d.pth' % epoch
             torch.save({'vision_encoder': nets.vision_encoder.state_dict(),
@@ -177,7 +172,7 @@ def test():
     max_steps = 300
     env = pusht.PushTImageEnv()
 
-    test_start_seed = 10000
+    test_start_seed = 1000
     n_test = 500
 
     ###### please choose the seed you want to test

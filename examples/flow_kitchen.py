@@ -152,12 +152,7 @@ for epoch in range(num_epochs):
     avg_loss_train_list.append(avg_loss_train.detach().cpu().numpy())
     print(colored(f"epoch: {epoch:>02},  loss_train: {avg_loss_train:.10f}", 'yellow'))
 
-    if epoch == 4500 or epoch == 0:
-        PATH = './checkpoint_k/flow_%05d.pth' % epoch
-        torch.save({
-            'noise_pred_net': noise_pred_net.state_dict(),
-        }, PATH)
-
+    if epoch == 4500:
         ema.copy_to(noise_pred_net.parameters())
         PATH = './checkpoint_k/flow_ema_%05d.pth' % epoch
         torch.save({
