@@ -54,7 +54,7 @@ sampling range<sup>2</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randin
 📝 **Acknowledgements** 
 * The model structure implementation is modified from Cheng Chi's [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. The code is under external/diffusion_policy (MIT license). Some code that we modified is located under external/models.
 * We use some functions from Alexander Tong's [TorchCFM](https://github.com/atong01/conditional-flow-matching) repo (MIT license). It is installed through pip.
-* Please download the PushT demonstration datat from Google Drive (id=1KY1InLurpMvJDRb14L9NlXT_fEsCvVUq&confirm=t) from Cheng Chi's 
+* Please download the PushT and robomimic demonstration data from Cheng Chi's 
 [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. 
 * Please download the Franka Kitchen demonstration data from Nur Muhammad Shafiullah's 
 [Behavior Transformers](https://mahis.life/bet/) repo (MIT license).
