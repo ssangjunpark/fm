@@ -236,7 +236,7 @@ for epoch in range(n_test):
                         pbar.update(1)
                         pbar.set_postfix(reward=reward)
 
-                        if step_idx > max_steps:
+                        if step_idx > max_steps or sum(rewards) == 4:
                             done = True
                         if done:
                             break
