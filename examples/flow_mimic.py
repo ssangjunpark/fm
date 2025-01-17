@@ -38,13 +38,12 @@ sys.dont_write_bytecode = True
 sys.path.append('../models')
 sys.path.append('../mimic')
 import os
+import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from tqdm import tqdm
 from unet import ConditionalUnet1D
-from resnet import get_resnet
-from resnet import replace_bn_with_gn
 import collections
 from diffusers.training_utils import EMAModel
 from torch.utils.data import Dataset, DataLoader
@@ -61,19 +60,20 @@ from diffusion_policy.model.common.rotation_transformer import RotationTransform
 import robomimic.utils.env_utils as EnvUtils
 import robomimic.utils.file_utils as FileUtils
 import pygame
+
 pygame.display.init()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
 ##################################
-dataset_path = os.path.expanduser("./mimic/low_dim_abs.hdf5")
+dataset_path = os.path.expanduser("../mimic/low_dim_abs.hdf5")
 
 obs_horizon = 1
 pred_horizon = 16
 action_horizon = 8
-action_dim = 10
+action_dim = 20
 num_epochs = 4501
-vision_feature_dim = 53
+vision_feature_dim = 50
 
 # create dataset from file
 dataset = RobomimicReplayLowdimDataset(
@@ -128,6 +128,9 @@ for epoch in range(0, num_epochs):
         x_all = normalizers.normalize(data)
         x_img = x_all['obs'][:, :obs_horizon].to(device)
         x_traj = x_all['action'].to(device)
+        print(x_img.shape)
+        print(x_traj.shape)
+        sys.exit(0)
 
         x_traj = x_traj.float()
         x0 = torch.randn(x_traj.shape, device=device)
@@ -154,7 +157,7 @@ for epoch in range(0, num_epochs):
 
     if epoch % 500 == 0:
         ema.copy_to(noise_pred_net.parameters())
-        PATH = './ckpt2/flow_ema_%05d.pth' % epoch
+        PATH = './flow_ema_%05d.pth' % epoch
         torch.save({'noise_pred_net': noise_pred_net.state_dict(),
                     'epoch': epoch,
                     'ema': ema.state_dict(),
@@ -186,10 +189,10 @@ def undo_transform_action(action):
     return uaction
 
 
-PATH = '/home/hri/z_flow/checkpoint/checkpoint_mimi/flow_ema_00500.pth'
+PATH = '/home/hri/z_flow/checkpoint/checkpoint_mimi/flow_ema_04500.pth'
 state_dict = torch.load(PATH, map_location='cuda')
 noise_pred_net.load_state_dict(state_dict['noise_pred_net'])
-
+dim = 500
 env_meta = FileUtils.get_env_metadata_from_dataset(
     dataset_path)
 env_meta['env_kwargs']['controller_configs']['control_delta'] = False
@@ -197,23 +200,21 @@ rotation_transformer = RotationTransformer('axis_angle', 'rotation_6d')
 env = EnvUtils.create_env_from_metadata(
     env_meta=env_meta,
     render=False,
-    render_offscreen=False,
+    render_offscreen=True,
     use_image_obs=False,
 )
 wrapper = RobomimicLowdimWrapper(
     env=env,
     obs_keys=[
         'object',
-        'robot0_eef_pos',
-        'robot0_eef_quat',
-        'robot0_gripper_qpos'
+        'robot0_eef_pos', 'robot0_eef_quat', 'robot0_gripper_qpos',
     ],
-    render_hw=(500,500),
-    render_camera_name='sideview'
+    render_hw=(dim, dim),
+    render_camera_name='frontview'
 )
 
-test_start_seed = 1
-n_test = 1
+test_start_seed = 1000
+n_test = 500
 max_steps = 700
 
 scorealllist = []
@@ -223,7 +224,7 @@ for epoch in range(n_test):
     seed = test_start_seed + epoch
     scorethislist = []
 
-    for pp in range(1):
+    for pp in range(10):
         wrapper.seed(seed)
 
         obs = wrapper.reset()
@@ -278,11 +279,6 @@ for epoch in range(n_test):
                         # and reward/vis
                         rewards.append(reward)
 
-                        # fig, ax = plt.subplots()
-                        # ax.imshow(wrapper.render())
-                        # plt.show()
-                        # sys.exit(0)
-
                         imgs.append(wrapper.render(mode='rgb_array'))
 
                         # update progress bar
@@ -291,9 +287,7 @@ for epoch in range(n_test):
                         pbar.update(1)
                         pbar.set_postfix(reward=reward)
 
-                        if step_idx > max_steps:
+                        if step_idx > max_steps or reward == 1:
                             done = True
                         if done:
                             break
-
-        vwrite('vis.mp4', imgs)
