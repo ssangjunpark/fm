@@ -41,15 +41,17 @@ Training and evaluation examples of using flow matching on PushT and Franka Kitc
   * `DfsTulipAgent`: DFS inspired variant that leverages a DAG for keeping track of tasks and suitable tools, can create new tools-->
   
 🏆 **Some Results** \
-Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/1czhtJyD3ny8op-P626Ucqhqur8SIaZZs/view?usp=sharing), [Franka Kitchen](https://drive.google.com/file/d/1oZioEezMlN-7Psu2UQBvLx_YztR7YkG8/view?usp=sharing)
+Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/1czhtJyD3ny8op-P626Ucqhqur8SIaZZs/view?usp=sharing), [Franka Kitchen](https://drive.google.com/file/d/1oZioEezMlN-7Psu2UQBvLx_YztR7YkG8/view?usp=sharing), [Robomimic](https://drive.google.com/file/d/1JftyoYIdNtIhcuC3nvIKfAvEwj9Wv6T1/view?usp=sharing)
 
-| Methods       | Push-T<sup>1</sup> | Push-T<sup>2</sup>       | Franka Kitchen | robomimic |
+| Methods       | Push-T<sup>1</sup> | Push-T<sup>2</sup>       | Franka Kitchen | Robomimic<sup>3</sup> |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| Flow Matching | 0.9035/0.7519 | 0.7463/0.6218 | 0.9960/0.7172 | |
+| Flow Matching | 0.9035/0.7519 | 0.7463/0.6218 | 0.9960/0.7172 | 0.9360/0.7082 |
 
 sampling range<sup>1</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(200, 300), rs.randint(200, 300), rs.randn() * 2 * np.pi - np.pi]
 
 sampling range<sup>2</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(100, 400), rs.randint(100, 400), rs.randn() * 2 * np.pi - np.pi]
+
+Robomimic<sup>2</sup>: transport task ph
 
 📝 **Acknowledgements** 
 * The model structure implementation is modified from Cheng Chi's [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. The code is under external/diffusion_policy (MIT license). Some code that we modified is located under external/models.
