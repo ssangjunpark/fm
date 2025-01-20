@@ -51,7 +51,7 @@ sampling range<sup>1</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randin
 
 sampling range<sup>2</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(100, 400), rs.randint(100, 400), rs.randn() * 2 * np.pi - np.pi]
 
-Robomimic<sup>2</sup>: transport task ph
+Robomimic<sup>3</sup>: transport task ph
 
 📝 **Acknowledgements** 
 * The model structure implementation is modified from Cheng Chi's [diffusion_policy](https://github.com/real-stanford/diffusion_policy) repo. The code is under external/diffusion_policy (MIT license). Some code that we modified is located under external/models.
