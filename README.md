@@ -45,7 +45,7 @@ Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/
 
 | Methods       | Push-T<sup>1</sup> | Push-T<sup>2</sup>       | Franka Kitchen | Robomimic<sup>3</sup> |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
-| Flow Matching | 0.9035/0.7519 | 0.7363/0.6218 | 0.9960/0.7425 | 0.9360/0.7082 |
+| Flow Matching | 0.9035/0.7519 | 0.7363/0.6218 | 0.9960/0.7425 | 0.9360/0.7289 |
 
 sampling range<sup>1</sup>: [rs.randint(50, 450), rs.randint(50, 450), rs.randint(200, 300), rs.randint(200, 300), rs.randn() * 2 * np.pi - np.pi]
 
