@@ -3,8 +3,7 @@
 ![pipeline](images/overall.png "overall")
 
 [![Static Badge](https://img.shields.io/badge/arXiv-2409.01083-B31B1B?style=flat-square&logo=arxiv)](https://arxiv.org/abs/2409.01083)
-<!--[![License](https://img.shields.io/pypi/l/cobras?style=flat-square)](https://opensource.org/license/bsd-3-clause)-->
-<!--[![Code Style](https://img.shields.io/badge/code_style-black-black?style=flat-square)](https://github.com/psf/black)-->
+[![License](https://img.shields.io/pypi/l/cobras?style=flat-square)](https://opensource.org/license/bsd-3-clause)
 
 A reference implementation for the `Affordance-based Robot Manipulation with Flow Matching`.
 
