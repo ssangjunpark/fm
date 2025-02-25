@@ -17,9 +17,6 @@ A reference implementation for the `Affordance-based Robot Manipulation with Flo
 <img src="images/flow.gif" width="900" height="270"/>
 </p>
 
-### Updates
-We are in process of integrating flow matching into the Hugging Face 🤗 LeRobot PushT task.
-
 ## Key components
 🔬 **This repo contains** \
 Training and evaluation examples of using flow matching on PushT and Franka Kitchen benchmarks.
