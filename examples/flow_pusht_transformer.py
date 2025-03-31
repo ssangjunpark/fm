@@ -32,20 +32,19 @@
 # This notebook is an example of "Affordance-based Robot Manipulation with Flow Matching" https://arxiv.org/abs/2409.01083
 
 import sys
+import time
 
 sys.dont_write_bytecode = True
 sys.path.append('../models')
-sys.path.append('../kitchen')
 import os
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import time
+import pusht
 import torch.nn as nn
-from torchvision import datasets, transforms
 from tqdm import tqdm
-from unet import ConditionalUnet1D
 from resnet import get_resnet
+from TransformerForDiffusion import TransformerForDiffusion
 from resnet import replace_bn_with_gn
 import collections
 from diffusers.training_utils import EMAModel
@@ -53,37 +52,35 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
 from diffusers.optimization import get_scheduler
 from termcolor import colored
-import torchdiffeq
-import torchsde
-from torchdyn.core import NeuralODE
-import pathlib
+import cv2
 from skvideo.io import vwrite
 from torchcfm.conditional_flow_matching import *
 from torchcfm.utils import *
 from torchcfm.models.models import *
-import kitchen_lowdim_dataset
-from diffusion_policy.env.kitchen.v0 import KitchenAllV0
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
+dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
 ##################################
-###### add Franka kitchen data to some folder
-dataset_path = "./kitchen/data"
+dataset_path = "pusht_cchi_v7_replay.zarr.zip"
 
 obs_horizon = 1
 pred_horizon = 16
-action_dim = 9
+action_dim = 2
 action_horizon = 8
-num_epochs = 4501
-vision_feature_dim = 60
+num_epochs = 3001
+vision_feature_dim = 514
 
 # create dataset from file
-dataset = kitchen_lowdim_dataset.KitchenLowdimDataset(
-    dataset_dir=dataset_path,
-    horizon=16,
+dataset = pusht.PushTImageDataset(
+    dataset_path=dataset_path,
+    pred_horizon=pred_horizon,
+    obs_horizon=obs_horizon,
+    action_horizon=action_horizon
 )
-print(len(dataset))
+
+# save training data statistics (min, max) for each dim
+stats = dataset.stats
 
 # create dataloader
 dataloader = DataLoader(
@@ -99,17 +96,25 @@ dataloader = DataLoader(
 
 ##################################################################
 # create network object
-noise_pred_net = ConditionalUnet1D(
+vision_encoder = get_resnet('resnet18')
+vision_encoder = replace_bn_with_gn(vision_encoder)
+noise_pred_net = TransformerForDiffusion(
     input_dim=action_dim,
-    global_cond_dim=vision_feature_dim
-).to(device)
+    output_dim=action_dim,
+    horizon=pred_horizon,
+    cond_dim=vision_feature_dim
+)
+nets = nn.ModuleDict({
+    'vision_encoder': vision_encoder,
+    'noise_pred_net': noise_pred_net
+}).to(device)
 
 ##################################################################
 sigma = 0.0
 ema = EMAModel(
-    parameters=noise_pred_net.parameters(),
+    parameters=nets.parameters(),
     power=0.75)
-optimizer = torch.optim.AdamW(params=noise_pred_net.parameters(), lr=1e-4, weight_decay=1e-6)
+optimizer = torch.optim.AdamW(params=nets.parameters(), lr=1e-4, weight_decay=1e-6)
 lr_scheduler = get_scheduler(
     name='cosine',
     optimizer=optimizer,
@@ -123,19 +128,25 @@ avg_loss_val_list = []
 
 ########################################################################
 #### Train the model
-for epoch in range(num_epochs):
+for epoch in range(0, num_epochs):
     total_loss_train = 0.0
     for data in tqdm(dataloader):
-        x_img = data['obs'][:, :obs_horizon].to(device)
+        x_img = data['image'][:, :obs_horizon].to(device)
+        x_pos = data['agent_pos'][:, :obs_horizon].to(device)
         x_traj = data['action'].to(device)
 
         x_traj = x_traj.float()
         x0 = torch.randn(x_traj.shape, device=device)
         timestep, xt, ut = FM.sample_location_and_conditional_flow(x0, x_traj)
 
-        # encoder state features
-        obs_cond = x_img.flatten(start_dim=1)
-        vt = noise_pred_net(xt, timestep, global_cond=obs_cond)
+        # encoder vision features
+        image_features = nets['vision_encoder'](x_img.flatten(end_dim=1))
+        image_features = image_features.reshape(*x_img.shape[:2], -1)
+        obs_features = torch.cat([image_features, x_pos], dim=-1)
+        # obs_cond = obs_features.flatten(start_dim=1)
+        obs_cond = obs_features
+
+        vt = nets['noise_pred_net'](xt, timestep, obs_cond)
 
         loss = torch.mean((vt - ut) ** 2)
         total_loss_train += loss.detach()
@@ -146,41 +157,46 @@ for epoch in range(num_epochs):
         lr_scheduler.step()
 
         # update Exponential Moving Average of the model weights
-        ema.step(noise_pred_net.parameters())
+        ema.step(nets.parameters())
 
     avg_loss_train = total_loss_train / len(dataloader)
     avg_loss_train_list.append(avg_loss_train.detach().cpu().numpy())
     print(colored(f"epoch: {epoch:>02},  loss_train: {avg_loss_train:.10f}", 'yellow'))
 
-    if epoch == 4500:
-        ema.copy_to(noise_pred_net.parameters())
-        PATH = './checkpoint_k/flow_ema_%05d.pth' % epoch
-        torch.save({
-            'noise_pred_net': noise_pred_net.state_dict(),
-        }, PATH)
+    if epoch % 1000 == 0:
+        ema.copy_to(nets.parameters())
+        PATH = './flow_ema_%05d.pth' % epoch
+        torch.save({'vision_encoder': nets.vision_encoder.state_dict(),
+                    'noise_pred_net': nets.noise_pred_net.state_dict(),
+                    'epoch': epoch,
+                    'ema': ema.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                    'lr_scheduler': lr_scheduler.state_dict()
+                    }, PATH)
 
 sys.exit(0)
 
-##################################################################
+########################################################################
 ###### test the model
-PATH = './flow_ema_04500.pth'
+PATH = './flow_ema_trans_03000.pth'
 state_dict = torch.load(PATH, map_location='cuda')
-noise_pred_net.load_state_dict(state_dict['noise_pred_net'])
+ema_nets = nets
+ema_nets.vision_encoder.load_state_dict(state_dict['vision_encoder'])
+ema_nets.noise_pred_net.load_state_dict(state_dict['noise_pred_net'])
 
-max_steps = 280
-env = KitchenAllV0(use_abs_action=False)
-
-test_start_seed = 10000
+test_start_seed = 1000
 n_test = 500
 
-###### please choose the seed you want to test
+max_steps = 300
+env = pusht.PushTImageEnv()
+
 for epoch in range(n_test):
     seed = test_start_seed + epoch
-    env.seed(seed)
 
     for pp in range(10):
-        obs = env.reset()
+        env.seed(seed)
 
+        obs, info = env.reset()
         obs_deque = collections.deque(
             [obs] * obs_horizon, maxlen=obs_horizon)
         imgs = [env.render(mode='rgb_array')]
@@ -188,15 +204,21 @@ for epoch in range(n_test):
         done = False
         step_idx = 0
 
-        with tqdm(total=max_steps, desc="Eval KitchenAllV0") as pbar:
+        with tqdm(total=max_steps, desc="Eval PushTImageEnv") as pbar:
             while not done:
-                x_img = np.stack([x for x in obs_deque])
-                x_img = torch.from_numpy(x_img).to(device, dtype=torch.float32)
+                B = 1
+                x_img = np.stack([x['image'] for x in obs_deque])
+                x_pos = np.stack([x['agent_pos'] for x in obs_deque])
+                x_pos = pusht.normalize_data(x_pos, stats=stats['agent_pos'])
 
+                x_img = torch.from_numpy(x_img).to(device, dtype=torch.float32)
+                x_pos = torch.from_numpy(x_pos).to(device, dtype=torch.float32)
                 # infer action
                 with torch.no_grad():
                     # get image features
-                    obs_cond = x_img.flatten(start_dim=1)
+                    image_features = ema_nets['vision_encoder'](x_img)
+                    obs_features = torch.cat([image_features, x_pos], dim=-1)
+                    obs_cond = obs_features.unsqueeze(0)
 
                     timehorion = 16
                     for i in range(timehorion):
@@ -205,38 +227,41 @@ for epoch in range(n_test):
                         timestep = torch.tensor([i / timehorion]).to(device)
 
                         if i == 0:
-                            vt = noise_pred_net(x0, timestep, global_cond=obs_cond)
+                            vt = nets['noise_pred_net'](x0, timestep, obs_cond)
                             traj = (vt * 1 / timehorion + x0)
 
                         else:
-                            vt = noise_pred_net(traj, timestep, global_cond=obs_cond)
+                            vt = nets['noise_pred_net'](traj, timestep, obs_cond)
                             traj = (vt * 1 / timehorion + traj)
 
-                    naction = traj.detach().to('cpu').numpy()
-                    naction = naction[0]
-                    action_pred = naction
+                naction = traj.detach().to('cpu').numpy()
+                naction = naction[0]
+                action_pred = pusht.unnormalize_data(naction, stats=stats['action'])
 
-                    # only take action_horizon number of actions
-                    start = obs_horizon - 1
-                    end = start + action_horizon
-                    action = action_pred[start:end, :]
+                # only take action_horizon number of actions
+                start = obs_horizon - 1
+                end = start + action_horizon
+                action = action_pred[start:end, :]
 
-                    for j in range(len(action)):
-                        # stepping env
-                        obs, reward, done, info = env.step(action[j])
-                        # save observations
-                        obs_deque.append(obs)
-                        # and reward/vis
-                        rewards.append(reward)
-                        imgs.append(env.render(mode='rgb_array'))
+                # execute action_horizon number of steps
+                for j in range(len(action)):
+                    # stepping env
+                    obs, reward, done, _, info = env.step(action[j])
+                    # save observations
+                    obs_deque.append(obs)
+                    # and reward/vis
+                    rewards.append(reward)
 
-                        # update progress bar
-                        step_idx += 1
+                    img = env.render(mode='rgb_array')
+                    imgs.append(img)
 
-                        pbar.update(1)
-                        pbar.set_postfix(reward=reward)
+                    # update progress bar
+                    step_idx += 1
 
-                        if step_idx > max_steps or sum(rewards) == 4:
-                            done = True
-                        if done:
-                            break
+                    pbar.update(1)
+                    pbar.set_postfix(reward=reward)
+
+                    if step_idx > max_steps:
+                        done = True
+                    if done:
+                        break

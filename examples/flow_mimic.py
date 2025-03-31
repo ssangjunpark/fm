@@ -165,6 +165,8 @@ for epoch in range(0, num_epochs):
                     'lr_scheduler': lr_scheduler.state_dict()
                     }, PATH)
 
+sys.exit(0)
+
 ##################################################################
 ###### test the model
 def undo_transform_action(action):
@@ -189,7 +191,7 @@ def undo_transform_action(action):
     return uaction
 
 
-PATH = '/home/hri/z_flow/checkpoint/checkpoint_mimi/flow_ema_04500.pth'
+PATH = './flow_ema_04500.pth'
 state_dict = torch.load(PATH, map_location='cuda')
 noise_pred_net.load_state_dict(state_dict['noise_pred_net'])
 dim = 500

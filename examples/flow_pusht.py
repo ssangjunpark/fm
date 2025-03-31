@@ -164,7 +164,7 @@ def train():
 ########################################################################
 ###### test the model
 def test():
-    PATH = '/home/hri/z_flow/checkpoint_t/flow_ema_03000.pth'
+    PATH = './flow_ema_03000.pth'
     state_dict = torch.load(PATH, map_location='cuda')
     ema_nets = nets
     ema_nets.vision_encoder.load_state_dict(state_dict['vision_encoder'])
