@@ -37,7 +37,7 @@ Training and evaluation examples of using flow matching on PushT and Franka Kitc
   * `DfsTulipAgent`: DFS inspired variant that leverages a DAG for keeping track of tasks and suitable tools, can create new tools-->
   
 🏆 **Some Results** \
-Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/1czhtJyD3ny8op-P626Ucqhqur8SIaZZs/view?usp=sharing), [Franka Kitchen](https://drive.google.com/file/d/1oZioEezMlN-7Psu2UQBvLx_YztR7YkG8/view?usp=sharing), [Robomimic](https://drive.google.com/file/d/1JftyoYIdNtIhcuC3nvIKfAvEwj9Wv6T1/view?usp=sharing) (updating .. done by today)
+Pretrained weights with flow matching: [Push-T](https://drive.google.com/file/d/19A0sdo-OygRE8WnZG8OYkB0nEvsIPY1R/view?usp=sharing), [Franka Kitchen](https://drive.google.com/file/d/1xZg7n7E_z2MK61Estecdr4fUuGSDG1pS/view?usp=sharing), [Robomimic](https://drive.google.com/file/d/1vMl9T_NoEC5sxaXTTRjfBUeAyi44ee6w/view?usp=sharing)
 
 | Methods       | Push-T<sup>1</sup> | Push-T<sup>2</sup>       | Franka Kitchen | Robomimic<sup>3</sup> |
 | ------------- | ------------- | ------------- | ------------- | ------------- |
