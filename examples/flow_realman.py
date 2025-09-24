@@ -174,7 +174,7 @@ def unnormalize_data(ndata, stats):
     return data
 
 obs_horizon = 1
-pred_horizon = 16
+pred_horizon = 50
 action_dim = 15
 action_horizon = 8
 num_epochs = 3001
@@ -273,8 +273,8 @@ def train():
             # x_img_right = data['observation.images.top_camera'].unsqueeze(1).to(device)
             # breakpoint()
             x_img_top = data['observation.images.top_camera'].to(device) # torch.Size([24, 1, 3, 256, 256])
-            x_im_left = data['observation.images.top_camera'].to(device)
-            x_img_right = data['observation.images.top_camera'].to(device)
+            x_im_left = data['observation.images.left_camera'].to(device)
+            x_img_right = data['observation.images.right_camera'].to(device)
             x_pos = data['observation.state'] # torch.Size([24, 1, 13])
             x_traj = data['action'] # torch.Size([24, 16, 15])
 
@@ -284,7 +284,7 @@ def train():
 
             x_traj = x_traj.float()
             x_pos = x_pos.float()
-            x0 = torch.randn(x_traj.shape, device=device) # torch.Size([24, 1, 15]) 
+            x0 = torch.randn(x_traj.shape, device=device) # torch.Size([64, 16, 15]) 
             timestep, xt, ut = FM.sample_location_and_conditional_flow(x0, x_traj) # torch.Size([24]), torch.Size([24, 1, 15]), torch.Size([24, 1, 15])
 
             # image_features = nets['vision_encoder'](x_img) # (torch.Size([24, 512])
@@ -300,8 +300,8 @@ def train():
 
             obs_features = torch.cat([image_features_top_camera, image_features_left_camera, image_features_right_camera, x_pos], dim=-1) # torch.Size([24, 1, 525])
             obs_cond = obs_features.flatten(start_dim=1) # torch.Size([24, 525])
-            # breakpoint()
-            vt = nets['noise_pred_net'](xt, timestep, global_cond=obs_cond)
+            breakpoint()
+            vt = nets['noise_pred_net'](xt, timestep, global_cond=obs_cond) 
 
             loss = torch.mean((vt - ut) ** 2)
             total_loss_train += loss.detach()
