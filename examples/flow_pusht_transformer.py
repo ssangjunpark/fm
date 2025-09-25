@@ -43,9 +43,9 @@ import torch
 import pusht
 import torch.nn as nn
 from tqdm import tqdm
-from resnet import get_resnet
-from TransformerForDiffusion import TransformerForDiffusion
-from resnet import replace_bn_with_gn
+from external.models.resnet import get_resnet
+from diffusion_policy.model.diffusion.transformer_for_diffusion import TransformerForDiffusion
+from external.models.resnet import replace_bn_with_gn
 import collections
 from diffusers.training_utils import EMAModel
 from sklearn.model_selection import train_test_split
@@ -57,12 +57,14 @@ from skvideo.io import vwrite
 from torchcfm.conditional_flow_matching import *
 from torchcfm.utils import *
 from torchcfm.models.models import *
+from external.models.pusht import PushTImageDataset
+
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 
 ##################################
-dataset_path = "pusht_cchi_v7_replay.zarr.zip"
+dataset_path = "data/pusht_cchi_v7_replay.zarr"
 
 obs_horizon = 1
 pred_horizon = 16
@@ -72,7 +74,7 @@ num_epochs = 3001
 vision_feature_dim = 514
 
 # create dataset from file
-dataset = pusht.PushTImageDataset(
+dataset = PushTImageDataset(
     dataset_path=dataset_path,
     pred_horizon=pred_horizon,
     obs_horizon=obs_horizon,
@@ -131,20 +133,21 @@ avg_loss_val_list = []
 for epoch in range(0, num_epochs):
     total_loss_train = 0.0
     for data in tqdm(dataloader):
-        x_img = data['image'][:, :obs_horizon].to(device)
-        x_pos = data['agent_pos'][:, :obs_horizon].to(device)
-        x_traj = data['action'].to(device)
+        # breakpoint()
+        x_img = data['image'][:, :obs_horizon].to(device) # torch.Size([64, 1, 3, 96, 96])
+        x_pos = data['agent_pos'][:, :obs_horizon].to(device) # torch.Size([64, 1, 2])
+        x_traj = data['action'].to(device) # torch.Size([64, 16, 2])
 
-        x_traj = x_traj.float()
-        x0 = torch.randn(x_traj.shape, device=device)
-        timestep, xt, ut = FM.sample_location_and_conditional_flow(x0, x_traj)
+        x_traj = x_traj.float() # torch.Size([64, 16, 2])
+        x0 = torch.randn(x_traj.shape, device=device) # torch.Size([64, 16, 2])
+        timestep, xt, ut = FM.sample_location_and_conditional_flow(x0, x_traj) # (torch.Size([64]), torch.Size([64, 16, 2]), torch.Size([64, 16, 2]))
 
         # encoder vision features
         image_features = nets['vision_encoder'](x_img.flatten(end_dim=1))
-        image_features = image_features.reshape(*x_img.shape[:2], -1)
-        obs_features = torch.cat([image_features, x_pos], dim=-1)
+        image_features = image_features.reshape(*x_img.shape[:2], -1) # torch.Size([64, 1, 512]
+        obs_features = torch.cat([image_features, x_pos], dim=-1) # torch.Size([64, 1, 514])
         # obs_cond = obs_features.flatten(start_dim=1)
-        obs_cond = obs_features
+        obs_cond = obs_features # torch.Size([64, 1, 514])
 
         vt = nets['noise_pred_net'](xt, timestep, obs_cond)
 
