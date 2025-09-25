@@ -178,8 +178,8 @@ pred_horizon = 16
 action_dim = 15
 action_horizon = 8
 num_epochs = 3001
-# vision_feature_dim = 1549
-vision_feature_dim = 4647
+vision_feature_dim = 1549
+# vision_feature_dim = 4647
 
 dataset_metadata = LeRobotDatasetMetadata(repo_id="ssangjunpark/daros0909_2005")
 
@@ -211,17 +211,17 @@ vision_encoder_left = replace_bn_with_gn(vision_encoder_left)
 vision_encoder_right = get_resnet('resnet18')
 vision_encoder_right = replace_bn_with_gn(vision_encoder_right)
 
-noise_pred_net = ConditionalUnet1D(
-    input_dim=action_dim,
-    global_cond_dim=vision_feature_dim
-)
-
-# noise_pred_net = TransformerForDiffusion(
-#     input_dim=action_dim,
-#     output_dim=action_dim,
-#     horizon=pred_horizon,
-#     cond_dim=vision_feature_dim
+# noise_pred_net = ConditionalUnet1D(
+    # input_dim=action_dim,
+    # global_cond_dim=vision_feature_dim
 # )
+
+noise_pred_net = TransformerForDiffusion(
+    input_dim=action_dim,
+    output_dim=action_dim,
+    horizon=pred_horizon,
+    cond_dim=vision_feature_dim
+)
 
 
 nets = nn.ModuleDict({
@@ -294,11 +294,11 @@ def train():
             image_features_right_camera = image_features_right_camera.reshape(*x_img_right.shape[:2], -1) # torch.Size([24, 1, 512])
 
             obs_features = torch.cat([image_features_top_camera, image_features_left_camera, image_features_right_camera, x_pos], dim=-1) # torch.Size([24, 1, 525])
-            obs_cond = obs_features.flatten(start_dim=1) # torch.Size([24, 525]) # TODO: THIS IS FOR UNET
+            # obs_cond = obs_features.flatten(start_dim=1) # torch.Size([24, 525]) # TODO: THIS IS FOR UNET
             # breakpoint()
-            # obs_cond = obs_features #TODO: THIS IS FOR TRANSFORMER
-            vt = nets['noise_pred_net'](xt, timestep, global_cond=obs_cond) 
-            # vt = nets['noise_pred_net'](xt, timestep, obs_cond)
+            obs_cond = obs_features #TODO: THIS IS FOR TRANSFORMER
+            # vt = nets['noise_pred_net'](xt, timestep, global_cond=obs_cond) 
+            vt = nets['noise_pred_net'](xt, timestep, obs_cond)
             loss = torch.mean((vt - ut) ** 2)
             total_loss_train += loss.detach()
 
