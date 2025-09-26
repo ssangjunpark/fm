@@ -266,11 +266,11 @@ def train():
     for epoch in range(num_epochs):
         total_loss_train = 0.0
         for data in dataloader:
-            # breakpoint()
-            x_img_top = data['observation.images.top_camera'].to(device) # torch.Size([24, 1, 3, 256, 256])
-            x_im_left = data['observation.images.left_camera'].to(device)
-            x_img_right = data['observation.images.right_camera'].to(device)
-            x_pos = data['observation.state'] # torch.Size([24, 1, 13])
+            breakpoint()
+            x_img_top = data['observation.images.top_camera'].to(device) # torch.Size([24, 3, 3, 256, 256])
+            x_im_left = data['observation.images.left_camera'].to(device)# torch.Size([24, 3, 3, 256, 256])
+            x_img_right = data['observation.images.right_camera'].to(device)# torch.Size([24, 3, 3, 256, 256])
+            x_pos = data['observation.state'] # torch.Size([24, 3, 13])
             x_traj = data['action'] # torch.Size([24, 16, 15])
 
             x_pos = normalize_data(x_pos, stats['observation.state']).to(device)
@@ -279,21 +279,21 @@ def train():
 
             x_traj = x_traj.float()
             x_pos = x_pos.float()
-            x0 = torch.randn(x_traj.shape, device=device) # torch.Size([64, 16, 15]) 
-            timestep, xt, ut = FM.sample_location_and_conditional_flow(x0, x_traj) # torch.Size([24]), torch.Size([24, 1, 15]), torch.Size([24, 1, 15])
+            x0 = torch.randn(x_traj.shape, device=device) # torch.Size([24, 16, 15]) 
+            timestep, xt, ut = FM.sample_location_and_conditional_flow(x0, x_traj) # (torch.Size([24]), torch.Size([24, 16, 15]), torch.Size([24, 16, 15]))
 
             # image_features = nets['vision_encoder'](x_img) # (torch.Size([24, 512])
             # obs_features = torch.cat([image_features, x_pos.squeeze(1)], dim=-1) # torch.Size([24, 525]
-            image_features_top_camera = nets['vision_encoder_top'](x_img_top.flatten(end_dim=1))
-            image_features_top_camera = image_features_top_camera.reshape(*x_img_top.shape[:2], -1) # torch.Size([24, 1, 512])
+            image_features_top_camera = nets['vision_encoder_top'](x_img_top.flatten(end_dim=1)) # torch.Size([72, 512])
+            image_features_top_camera = image_features_top_camera.reshape(*x_img_top.shape[:2], -1) # torch.Size([24, 3, 512])
 
-            image_features_left_camera= nets['vision_encoder_left'](x_im_left.flatten(end_dim=1))
-            image_features_left_camera = image_features_left_camera.reshape(*x_im_left.shape[:2], -1) # torch.Size([24, 1, 512])
+            image_features_left_camera= nets['vision_encoder_left'](x_im_left.flatten(end_dim=1))# torch.Size([72, 512])
+            image_features_left_camera = image_features_left_camera.reshape(*x_im_left.shape[:2], -1) # torch.Size([24, 3, 512])
 
-            image_features_right_camera = nets['vision_encoder_right'](x_img_right.flatten(end_dim=1))
-            image_features_right_camera = image_features_right_camera.reshape(*x_img_right.shape[:2], -1) # torch.Size([24, 1, 512])
+            image_features_right_camera = nets['vision_encoder_right'](x_img_right.flatten(end_dim=1))# torch.Size([72, 512])
+            image_features_right_camera = image_features_right_camera.reshape(*x_img_right.shape[:2], -1)# torch.Size([24, 3, 512])
 
-            obs_features = torch.cat([image_features_top_camera, image_features_left_camera, image_features_right_camera, x_pos], dim=-1) # torch.Size([24, 1, 525])
+            obs_features = torch.cat([image_features_top_camera, image_features_left_camera, image_features_right_camera, x_pos], dim=-1) # torch.Size([24, 3, 1549])
             # obs_cond = obs_features.flatten(start_dim=1) # torch.Size([24, 525]) # TODO: THIS IS FOR UNET
             # breakpoint()
             obs_cond = obs_features #TODO: THIS IS FOR TRANSFORMER
