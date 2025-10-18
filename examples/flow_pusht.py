@@ -125,7 +125,7 @@ def train():
     for epoch in range(num_epochs):
         total_loss_train = 0.0
         for data in tqdm(dataloader):
-            breakpoint()
+            # breakpoint()
             x_img = data['image'][:, :obs_horizon].to(device) # torch.Size([64, 1, 3, 96, 96])
             x_pos = data['agent_pos'][:, :obs_horizon].to(device) # torch.Size([64, 1, 2])
             x_traj = data['action'].to(device) # torch.Size([64, 16, 2])
