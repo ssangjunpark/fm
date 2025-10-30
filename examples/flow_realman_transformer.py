@@ -25,140 +25,172 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # dtype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
 from lerobot.datasets.lerobot_dataset import LeRobotDataset, LeRobotDatasetMetadata
 
-# stats = {
-#     "observation.state": {
-#         "mean": [
-#             0.6450900358504618,
-#             -0.7566365863550044,
-#             -1.9531994279392757,
-#             -0.636228704556337,
-#             0.9294437836957871,
-#             0.40238095617180536,
-#             -0.2417583820424925,
-#             0.4574256425845039,
-#             1.8369025219846666,
-#             0.6931115202453135,
-#             -0.7588352155993766,
-#             -0.8551040061881537,
-#             -0.3194374451140716
-#         ],
-#         "std": [
-#             0.013746665990684684,
-#             0.8947083635061926,
-#             0.23333342921136216,
-#             0.316393704604747,
-#             0.9590241955650118,
-#             0.5256390327101169,
-#             0.3837092416757562,
-#             0.46628761706609057,
-#             0.2356420165570302,
-#             0.12353852445827644,
-#             0.858561457717603,
-#             0.7386663433358946,
-#             0.544038013839396
-#         ],
-#         "min": [
-#             0.5829905641022622,
-#             -2.0000012140882704,
-#             -2.200144076361417,
-#             -1.2020034901983574,
-#             5.285630235915628e-07,
-#             -4.1285939978266144e-05,
-#             -1.5655383924931467,
-#             -0.48632903159862806,
-#             1.3272982419158965,
-#             0.3717117656315192,
-#             -2.3563873869626804,
-#             -1.9888990511303644,
-#             -1.4946053480293056
-#         ],
-#         "max": [
-#             0.7236919748675446,
-#             0.0011243564880443735,
-#             -1.5555997571149072,
-#             -0.0017115980269224917,
-#             2.500092733199697,
-#             1.5705404221271622,
-#             1.1933578846346397e-05,
-#             1.1496382431532963,
-#             2.2008470459966234,
-#             0.8072224965133082,
-#             0.00021778487748337305,
-#             0.0013789871781670667,
-#             0.34653744316021606
-#         ]
-#     },
-#     "action": {
-#         "mean": [
-#             0.6446717456379906,
-#             -0.7657628130908906,
-#             -1.9580253960446106,
-#             -0.634653011990276,
-#             0.8869591100572214,
-#             0.37807312545714544,
-#             -0.2751958570699207,
-#             0.4565219046962575,
-#             1.842060307539211,
-#             0.6915813920158211,
-#             -0.7308880203976218,
-#             -0.7868339618306812,
-#             -0.31450784942248516,
-#             0.10673031906753427,
-#             -0.010911921302857976
-#         ],
-#         "std": [
-#             0.015251444787637682,
-#             0.9049480820394832,
-#             0.23450817831765391,
-#             0.32122138802103406,
-#             0.9508210446404274,
-#             0.5049988442631763,
-#             0.4463907097952005,
-#             0.4742034799336201,
-#             0.24279558318767666,
-#             0.1265935021611503,
-#             0.8595673975128267,
-#             0.7408858538508936,
-#             0.555657166341685,
-#             0.18429556153509055,
-#             0.35921902595851757
-#         ],
-#         "min": [
-#             0.5609415191755787,
-#             -2.0,
-#             -2.2000042098978643,
-#             -1.2020014095530074,
-#             0.0,
-#             -7.909514708942844e-08,
-#             -1.5697614516562801,
-#             -0.5,
-#             1.2674452298884091,
-#             0.3591622712551098,
-#             -2.4,
-#             -2.0,
-#             -1.5,
-#             -0.542462741099916,
-#             -0.9999435168371982
-#         ],
-#         "max": [
-#             0.7354723321922138,
-#             0.0002298648734126341,
-#             -1.5558640287520298,
-#             -0.0017360441008008516,
-#             2.500039121230637,
-#             1.5701936307405195,
-#             4.075713843064229e-06,
-#             1.15,
-#             2.2006957053613156,
-#             0.804657612496324,
-#             7.336622863805712e-05,
-#             0.0013513474675255924,
-#             0.39969337124456317,
-#             0.6140361615732242,
-#             0.9999952977281527
-#         ]
-#     },
-# }
+stats = {
+    "observation.state": {
+        "mean": [
+            0.02534289518551391,
+            -2.1706827729360842,
+            -0.5629096304024529,
+            1.6258425985014564,
+            -0.012070194241987324,
+            -0.4026936016980247,
+            0.16193962602116993,
+            2.2243634970191066,
+            0.5778220932543984,
+            -1.859446903273561,
+            0.003941503208423424,
+            0.40010345702669836,
+            0.1257736367567865,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.0011328862366133182
+        ],
+        "std": [
+            0.0011519102377312922,
+            0.0006507110306489733,
+            3.115483684862666e-05,
+            5.022074669912852e-05,
+            7.636413925308008e-05,
+            8.999197614477418e-05,
+            0.001131060400388634,
+            0.0011528209502594628,
+            5.811690515158436e-05,
+            5.487550428341056e-05,
+            7.500322239459996e-05,
+            3.684510267213327e-05,
+            0.09293051115539204,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.017778863108293116
+        ],
+        "min": [
+            0.024290399301052094,
+            -2.1712860649108885,
+            -0.5630242393493653,
+            1.6257292659759521,
+            -0.012424400216341018,
+            -0.4028681481361389,
+            0.16085410718917847,
+            2.223566303253174,
+            0.5777171228408814,
+            -1.859576733016968,
+            0.0037343000270426275,
+            0.3999889154434204,
+            -0.072,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.19999998807907104
+        ],
+        "max": [
+            0.027448849201202392,
+            -2.169471196746826,
+            -0.5628323282241822,
+            1.6259735649108886,
+            -0.011656599700450897,
+            -0.4025540542602539,
+            0.16397765545845033,
+            2.226218710708618,
+            0.5779789287567139,
+            -1.85934987449646,
+            0.004065849918872118,
+            0.40018085985183716,
+            0.22,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.1853
+        ]
+    },
+    "action": {
+        "mean": [
+            0.022039350199698694,
+            -2.17465392875641,
+            -0.5677880685807143,
+            1.626305065918103,
+            -0.011953250041603533,
+            -0.40264128961556567,
+            0.15869029760361333,
+            2.2215768978117514,
+            0.5809977180480044,
+            -1.8596813755033634,
+            0.004118200024962046,
+            0.4004076850891396,
+            0.051820190440844155,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.004102186256165412
+        ],
+        "std": [
+            4.8949839644200725e-09,
+            1.2266108767543242e-06,
+            0.0,
+            0.0,
+            0.0,
+            2.113261014771884e-07,
+            0.0,
+            6.049210766012799e-07,
+            3.5301917017943067e-07,
+            1.7249341164216735e-07,
+            1.1105313913628292e-09,
+            0.0,
+            0.03823421374265365,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.038363392150702565
+        ],
+        "min": [
+            0.022039350199699402,
+            -2.174653928756714,
+            -0.5677880685806275,
+            1.6263050659179688,
+            -0.011953250041604042,
+            -0.4026412896156311,
+            0.15869029760360717,
+            2.2215768978118895,
+            0.5809977180480957,
+            -1.85968137550354,
+            0.004118200024962425,
+            0.40040768508911134,
+            -0.07999999821186066,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.20000000298023224
+        ],
+        "max": [
+            0.022039350199699402,
+            -2.174653928756714,
+            -0.5677880685806275,
+            1.6263050659179688,
+            -0.011953250041604042,
+            -0.4026412896156311,
+            0.15869029760360717,
+            2.2215768978118895,
+            0.5809977180480957,
+            -1.85968137550354,
+            0.004118200024962425,
+            0.40040768508911134,
+            0.07999999821186066,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.20000000298023224
+        ]
+    },
+}
 
 stats = {
     "observation.state": {
@@ -349,17 +381,17 @@ vision_feature_dim = 1554
 # vision_feature_dim = 1
 # vision_feature_dim = 4647
 
-dataset_metadata = LeRobotDatasetMetadata(repo_id="Mcen27/HF_RM_BASE_43")
+dataset_metadata = LeRobotDatasetMetadata(repo_id="Mcen27/HF_RM_BASE_SIMPLE_100")
 
 delta_timestamps = {
         "observation.images.top_camera": [-0.4, -0.2, 0.0],
-        "observation.images.left_camera": [-0.4, -0.2, 0.0],
-        "observation.images.right_camera": [-0.4, -0.2, 0.0],
+        "observation.images.front_camera": [-0.4, -0.2, 0.0],
+        "observation.images.top_camera_depth": [-0.4, -0.2, 0.0],
         "observation.state" : [-0.4, -0.2, 0.0],
         "action": [0.2 * i for i in range(0,16,1)]
 }
 
-dataset = LeRobotDataset(repo_id="Mcen27/HF_RM_BASE_43", delta_timestamps=delta_timestamps)
+dataset = LeRobotDataset(repo_id="Mcen27/HF_RM_BASE_SIMPLE_100", delta_timestamps=delta_timestamps)
 
 dataloader = torch.utils.data.DataLoader(
         dataset,
@@ -373,11 +405,11 @@ dataloader = torch.utils.data.DataLoader(
 vision_encoder_top = get_resnet('resnet18')
 vision_encoder_top = replace_bn_with_gn(vision_encoder_top)
 
-vision_encoder_left = get_resnet('resnet18')
-vision_encoder_left = replace_bn_with_gn(vision_encoder_left)
+vision_encoder_front = get_resnet('resnet18')
+vision_encoder_front = replace_bn_with_gn(vision_encoder_front)
 
-vision_encoder_right = get_resnet('resnet18')
-vision_encoder_right = replace_bn_with_gn(vision_encoder_right)
+vision_encoder_top_depth = get_resnet('resnet18')
+vision_encoder_top_depth = replace_bn_with_gn(vision_encoder_top_depth)
 
 # noise_pred_net = ConditionalUnet1D(
     # input_dim=action_dim,
@@ -394,8 +426,8 @@ noise_pred_net = TransformerForDiffusion(
 
 nets = nn.ModuleDict({
     'vision_encoder_top': vision_encoder_top,
-    'vision_encoder_left': vision_encoder_left,
-    'vision_encoder_right': vision_encoder_right,
+    'vision_encoder_front': vision_encoder_front,
+    'vision_encoder_top_depth': vision_encoder_top_depth,
     'noise_pred_net': noise_pred_net
 }).to(device)
 
@@ -436,8 +468,8 @@ def train():
         for data in dataloader:
             # breakpoint()
             x_img_top = data['observation.images.top_camera'].to(device) # torch.Size([24, 3, 3, 256, 256])
-            x_im_left = data['observation.images.left_camera'].to(device)# torch.Size([24, 3, 3, 256, 256])
-            x_img_right = data['observation.images.right_camera'].to(device)# torch.Size([24, 3, 3, 256, 256])
+            x_im_left = data['observation.images.front_camera'].to(device)# torch.Size([24, 3, 3, 256, 256])
+            x_img_right = data['observation.images.top_camera_depth'].to(device)# torch.Size([24, 3, 3, 256, 256])
             x_pos = data['observation.state'] # torch.Size([24, 3, 13])
             x_traj = data['action'] # torch.Size([24, 16, 15])
 
@@ -455,13 +487,13 @@ def train():
             image_features_top_camera = nets['vision_encoder_top'](x_img_top.flatten(end_dim=1)) # torch.Size([72, 512])
             image_features_top_camera = image_features_top_camera.reshape(*x_img_top.shape[:2], -1) # torch.Size([24, 3, 512])
 
-            image_features_left_camera= nets['vision_encoder_left'](x_im_left.flatten(end_dim=1))# torch.Size([72, 512])
-            image_features_left_camera = image_features_left_camera.reshape(*x_im_left.shape[:2], -1) # torch.Size([24, 3, 512])
+            image_features_front_camera= nets['vision_encoder_front'](x_im_left.flatten(end_dim=1))# torch.Size([72, 512])
+            image_features_front_camera = image_features_front_camera.reshape(*x_im_left.shape[:2], -1) # torch.Size([24, 3, 512])
 
-            image_features_right_camera = nets['vision_encoder_right'](x_img_right.flatten(end_dim=1))# torch.Size([72, 512])
-            image_features_right_camera = image_features_right_camera.reshape(*x_img_right.shape[:2], -1)# torch.Size([24, 3, 512])
+            image_features_top_depth_camera = nets['vision_encoder_top_depth'](x_img_right.flatten(end_dim=1))# torch.Size([72, 512])
+            image_features_top_depth_camera = image_features_top_depth_camera.reshape(*x_img_right.shape[:2], -1)# torch.Size([24, 3, 512])
 
-            obs_features = torch.cat([image_features_top_camera, image_features_left_camera, image_features_right_camera, x_pos], dim=-1) # torch.Size([24, 3, 1549])
+            obs_features = torch.cat([image_features_top_camera, image_features_front_camera, image_features_top_depth_camera, x_pos], dim=-1) # torch.Size([24, 3, 1549])
             # obs_cond = obs_features.flatten(start_dim=1) # torch.Size([24, 525]) # TODO: THIS IS FOR UNET
             # breakpoint()
             obs_cond = obs_features #TODO: THIS IS FOR TRANSFORMER
@@ -483,8 +515,8 @@ def train():
                 ema.copy_to(nets.parameters())
                 PATH = './checkpoint_t/flow_ema_%05d.pth' % count
                 torch.save({'vision_encoder_top': nets.vision_encoder_top.state_dict(),
-                            'vision_encoder_left': nets.vision_encoder_left.state_dict(),
-                            'vision_encoder_right': nets.vision_encoder_right.state_dict(),
+                            'vision_encoder_front': nets.vision_encoder_front.state_dict(),
+                            'vision_encoder_top_depth': nets.vision_encoder_top_depth.state_dict(),
                             'noise_pred_net': nets.noise_pred_net.state_dict(),
                             'optimizer' : optimizer.state_dict(),
                             'lr_scheduler' :lr_scheduler.state_dict(),
