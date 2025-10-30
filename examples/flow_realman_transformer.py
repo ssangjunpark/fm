@@ -377,7 +377,7 @@ pred_horizon = 16
 action_dim = 18
 action_horizon = 8
 num_epochs = 3001
-vision_feature_dim = 1554
+vision_feature_dim = 2066
 # vision_feature_dim = 1
 # vision_feature_dim = 4647
 
@@ -387,6 +387,7 @@ delta_timestamps = {
         "observation.images.top_camera": [-0.4, -0.2, 0.0],
         "observation.images.front_camera": [-0.4, -0.2, 0.0],
         "observation.images.top_camera_depth": [-0.4, -0.2, 0.0],
+        "observation.images.front_camera_depth": [-0.4, -0.2, 0.0],
         "observation.state" : [-0.4, -0.2, 0.0],
         "action": [0.2 * i for i in range(0,16,1)]
 }
@@ -411,6 +412,9 @@ vision_encoder_front = replace_bn_with_gn(vision_encoder_front)
 vision_encoder_top_depth = get_resnet('resnet18')
 vision_encoder_top_depth = replace_bn_with_gn(vision_encoder_top_depth)
 
+vision_encoder_front_depth = get_resnet('resnet18')
+vision_encoder_front_depth = replace_bn_with_gn(vision_encoder_front_depth)
+
 # noise_pred_net = ConditionalUnet1D(
     # input_dim=action_dim,
     # global_cond_dim=vision_feature_dim
@@ -428,6 +432,7 @@ nets = nn.ModuleDict({
     'vision_encoder_top': vision_encoder_top,
     'vision_encoder_front': vision_encoder_front,
     'vision_encoder_top_depth': vision_encoder_top_depth,
+    'vision_encoder_front_depth': vision_encoder_front_depth,
     'noise_pred_net': noise_pred_net
 }).to(device)
 
@@ -468,8 +473,9 @@ def train():
         for data in dataloader:
             # breakpoint()
             x_img_top = data['observation.images.top_camera'].to(device) # torch.Size([24, 3, 3, 256, 256])
-            x_im_left = data['observation.images.front_camera'].to(device)# torch.Size([24, 3, 3, 256, 256])
-            x_img_right = data['observation.images.top_camera_depth'].to(device)# torch.Size([24, 3, 3, 256, 256])
+            x_im_front = data['observation.images.front_camera'].to(device)# torch.Size([24, 3, 3, 256, 256])
+            x_img_top_depth = data['observation.images.top_camera_depth'].to(device)# torch.Size([24, 3, 3, 256, 256])
+            x_img_front_depth = data['observation.images.front_camera_depth'].to(device)
             x_pos = data['observation.state'] # torch.Size([24, 3, 13])
             x_traj = data['action'] # torch.Size([24, 16, 15])
 
@@ -487,13 +493,16 @@ def train():
             image_features_top_camera = nets['vision_encoder_top'](x_img_top.flatten(end_dim=1)) # torch.Size([72, 512])
             image_features_top_camera = image_features_top_camera.reshape(*x_img_top.shape[:2], -1) # torch.Size([24, 3, 512])
 
-            image_features_front_camera= nets['vision_encoder_front'](x_im_left.flatten(end_dim=1))# torch.Size([72, 512])
-            image_features_front_camera = image_features_front_camera.reshape(*x_im_left.shape[:2], -1) # torch.Size([24, 3, 512])
+            image_features_front_camera= nets['vision_encoder_front'](x_im_front.flatten(end_dim=1))# torch.Size([72, 512])
+            image_features_front_camera = image_features_front_camera.reshape(*x_im_front.shape[:2], -1) # torch.Size([24, 3, 512])
 
-            image_features_top_depth_camera = nets['vision_encoder_top_depth'](x_img_right.flatten(end_dim=1))# torch.Size([72, 512])
-            image_features_top_depth_camera = image_features_top_depth_camera.reshape(*x_img_right.shape[:2], -1)# torch.Size([24, 3, 512])
+            image_features_top_depth_camera = nets['vision_encoder_top_depth'](x_img_top_depth.flatten(end_dim=1))# torch.Size([72, 512])
+            image_features_top_depth_camera = image_features_top_depth_camera.reshape(*x_img_top_depth.shape[:2], -1)# torch.Size([24, 3, 512])
 
-            obs_features = torch.cat([image_features_top_camera, image_features_front_camera, image_features_top_depth_camera, x_pos], dim=-1) # torch.Size([24, 3, 1549])
+            image_features_front_depth_camera = nets['vision_encoder_front_depth'](x_img_front_depth.flatten(end_dim=1))# torch.Size([72, 512])
+            image_features_front_depth_camera = image_features_front_depth_camera.reshape(*x_img_front_depth.shape[:2], -1)# torch.Size([24, 3, 512])
+
+            obs_features = torch.cat([image_features_top_camera, image_features_front_camera, image_features_top_depth_camera, image_features_front_depth_camera, x_pos], dim=-1) # torch.Size([24, 3, 1549])
             # obs_cond = obs_features.flatten(start_dim=1) # torch.Size([24, 525]) # TODO: THIS IS FOR UNET
             # breakpoint()
             obs_cond = obs_features #TODO: THIS IS FOR TRANSFORMER
@@ -517,6 +526,7 @@ def train():
                 torch.save({'vision_encoder_top': nets.vision_encoder_top.state_dict(),
                             'vision_encoder_front': nets.vision_encoder_front.state_dict(),
                             'vision_encoder_top_depth': nets.vision_encoder_top_depth.state_dict(),
+                            'vision_encoder_front_depth': nets.vision_encoder_front_depth.state_dict(),
                             'noise_pred_net': nets.noise_pred_net.state_dict(),
                             'optimizer' : optimizer.state_dict(),
                             'lr_scheduler' :lr_scheduler.state_dict(),
